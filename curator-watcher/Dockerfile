@@ -1,8 +1,6 @@
 FROM openjdk:8-jre
 MAINTAINER Adam Westerman <aswest92@gmail.com>
 
-ENV JAVA_HOME=/usr/local/lib/java
-
 ARG JAR_FILE
 
 WORKDIR /curator-watcher

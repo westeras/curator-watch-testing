@@ -3,6 +3,7 @@ package com.westeras.curator;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -33,7 +34,8 @@ public class ZookeeperAutoWriterRunnable implements Runnable {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ZookeeperAutoWriterRunnable(String zkConnect, String zkWatchNode) {
+    public ZookeeperAutoWriterRunnable(String zkConnect, String zkWatchNode) throws Exception {
+        log.info("setting up auto writer runnable...");
         this.zkWatchNode = zkWatchNode;
 
         // setup Curator ZK client
@@ -42,42 +44,54 @@ public class ZookeeperAutoWriterRunnable implements Runnable {
         client.start();
     }
 
+    private String[] pathParts(String fullPath) {
+        fullPath = fullPath.startsWith("/") ? fullPath.substring(1) : fullPath;
+        fullPath = fullPath.endsWith("/") ? fullPath.substring(0, fullPath.length() - 1) : fullPath;
+
+        return fullPath.split("/");
+    }
+
     @Override
     public void run() {
+        log.info("running auto writer runnable...");
         while (true) {
             try {
                 int option = random.nextInt(3);
                 if (childNodes.isEmpty() || option == 0) {
-                    // add new node
                     String childNode = "/" + UUID.randomUUID().toString();
-                    childNodes.add(childNode);
+                    log.info("adding a new node {} to {}", childNode, zkWatchNode);
 
                     SampleZNodeObject sampleObject = new SampleZNodeObject(childNode, System.currentTimeMillis(), Inet4Address.getLocalHost().getHostName());
                     byte[] bytes = serializeObject(sampleObject);
 
+                    childNodes.add(childNode);
+
                     client.create().forPath(zkWatchNode + childNode, bytes);
                 } else if (option == 1) {
-                    // delete a random node
                     int toDeleteIndex = random.nextInt(childNodes.size());
                     String toDelete = childNodes.get(toDeleteIndex);
-                    childNodes.remove(toDeleteIndex);
+                    log.info("deleting node {} from {}", toDelete, zkWatchNode);
 
                     client.delete().forPath(zkWatchNode + toDelete);
-                } else {
-                    // update a random node
-                    String toUpdate = childNodes.get(random.nextInt(childNodes.size()));
 
+                    childNodes.remove(toDeleteIndex);
+                } else {
+                    String toUpdate = childNodes.get(random.nextInt(childNodes.size()));
+                    log.info("updating node {} in {} with a current timestamp", toUpdate, zkWatchNode);
                     byte[] bytes = client.getData().forPath(zkWatchNode + toUpdate);
                     SampleZNodeObject sampleObject = deserializeObject(bytes);
-                    sampleObject = SampleZNodeObject.builder()
-                            .timestamp(System.currentTimeMillis())
-                            .build();
+                    sampleObject.setTimestamp(System.currentTimeMillis());
                     client.setData().forPath(zkWatchNode + toUpdate, serializeObject(sampleObject));
                 }
 
-                Thread.sleep(random.nextInt(10000));
             } catch (Exception e) {
-                log.info("thread was interrupted while sleeping");
+                log.error("caught an exception while processing reading/writing data from ZK", e);
+            }
+
+            try {
+                Thread.sleep(random.nextInt(5000));
+            } catch (InterruptedException e) {
+                log.error("thread was interrupted while sleeping", e);
             }
         }
     }

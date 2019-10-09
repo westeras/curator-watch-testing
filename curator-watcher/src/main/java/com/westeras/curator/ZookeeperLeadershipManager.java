@@ -57,7 +57,7 @@ public class ZookeeperLeadershipManager extends LeaderSelectorListenerAdapter im
     public void takeLeadership(CuratorFramework curatorFramework) {
         log.info("[{}] taking leadership of zookeeper quorum...", hostname);
         try {
-            Thread.sleep(10000);
+            Thread.sleep(60000);
         } catch (InterruptedException e) {
             log.error("Leadership thread interrupted while sleeping!", e);
         }

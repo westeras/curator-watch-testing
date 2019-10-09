@@ -22,8 +22,8 @@ services:
     image: aswest92/testing/curator-watcher:1.0-SNAPSHOT
     environment:
       ZK_CONNECT: zk1:2181,zk2:2181,zk3:2181
-      ZK_LOCK_NODE: /testing/locking
-      ZK_WATCH_NODE: /testing/watching
+      ZK_LOCK_NODE: /lock-node
+      ZK_WATCH_NODE: /watch-node
     depends_on:
       - zk1
       - zk2
@@ -32,7 +32,7 @@ services:
     image: aswest92/testing/zk-auto-writer:1.0-SNAPSHOT
     environment:
       ZK_CONNECT: zk1:2181,zk2:2181,zk3:2181
-      ZK_WATCH_NODE: /testing/watching
+      ZK_WATCH_NODE: /watch-node
     depends_on:
       - zk1
       - zk2
