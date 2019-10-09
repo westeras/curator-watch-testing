@@ -1,0 +1,40 @@
+version: '3'
+services:
+  zk1:
+    image: zookeeper:3.5.5
+    hostname: zk1
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zk1:2888:3888;2181 server.2=zk2:2888:3888;2181 server.3=zk3:2888:3888;2181
+  zk2:
+    image: zookeeper:3.5.5
+    hostname: zk2
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zk1:2888:3888;2181 server.2=zk2:2888:3888;2181 server.3=zk3:2888:3888;2181
+  zk3:
+    image: zookeeper:3.5.5
+    hostname: zk3
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zk1:2888:3888;2181 server.2=zk2:2888:3888;2181 server.3=zk3:2888:3888;2181
+  curator-watcher:
+    image: aswest92/testing/curator-watcher:1.0-SNAPSHOT
+    environment:
+      ZK_CONNECT: zk1:2181,zk2:2181,zk3:2181
+      ZK_LOCK_NODE: /testing/locking
+      ZK_WATCH_NODE: /testing/watching
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+  auto-writer:
+    image: aswest92/testing/zk-auto-writer:1.0-SNAPSHOT
+    environment:
+      ZK_CONNECT: zk1:2181,zk2:2181,zk3:2181
+      ZK_WATCH_NODE: /testing/watching
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+      - curator-watcher
