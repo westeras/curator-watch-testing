@@ -10,14 +10,14 @@ Spotify's `dockerfile-maven-plugin` is used to build Docker images out of each a
 
 Requirements: Maven, Docker
 
-Basic usage, which deploys a 3 node Zookeeper quorum, and one instance each of `curator-watcher` and `zk-auto-writer` 
+Basic usage, which deploys a 3 node Zookeeper quorum, and one instance each of `curator-watcher` and `zk-auto-writer`:
 
 ```bash
 mvn clean install
 docker-compose up
 ```
 
-`--scale` can be used to deploy extra instances of `curator-watcher` and `zk-auto-writer`
+`--scale` can be used to deploy extra instances of `curator-watcher` and `zk-auto-writer`:
 
 ```bash
 mvn clean install
@@ -27,15 +27,15 @@ docker-compose up --scale curator-watcher=5 --scale auto-writer=3
 Each instance of `curator-watcher` will take leadership of the quorum for 60 seconds before relinquishing it, which is displayed in the logs:
 
 ```bash
-curator-watcher_1  | 14:04:01.260 [Curator-LeaderSelector-0] INFO  c.w.c.ZookeeperLeadershipManager: [8c92cc99d5a5] relinquishing leadership...
-curator-watcher_5  | 14:04:01.273 [Curator-LeaderSelector-0] INFO  c.w.c.ZookeeperLeadershipManager: [8ff16e1c0aa9] taking leadership of zookeeper quorum.
+INFO  c.w.c.ZookeeperLeadershipManager: [8c92cc99d5a5] relinquishing leadership...
+INFO  c.w.c.ZookeeperLeadershipManager: [8ff16e1c0aa9] taking leadership of zookeeper quorum.
 ```
 
 Each instance of `curator-watcher` is also equipped with a Zookeeper node watcher which implements a callback in order to react to child nodes written within the watched node:
 
 ```bash
-curator-watcher_5  | 14:04:01.481 [Curator-PathChildrenCache-0] INFO  c.w.c.ZookeeperLeadershipManager: CHILD_UPDATED: 67b21275-ce11-4051-afce-8f4a4b6207f8
-curator-watcher_5  | 14:04:01.481 [Curator-PathChildrenCache-0] INFO  c.w.c.ZookeeperLeadershipManager: Node data: {"id":"/67b21275-ce11-4051-afce-8f4a4b6207f8","timestamp":1570716241467,"hostname":"dc61baba1b97"}
+INFO  c.w.c.ZookeeperLeadershipManager: CHILD_UPDATED: 67b21275-ce11-4051-afce-8f4a4b6207f8
+INFO  c.w.c.ZookeeperLeadershipManager: Node data: {"id":"/67b21275-ce11-4051-afce-8f4a4b6207f8","timestamp":1570716241467,"hostname":"dc61baba1b97"}
 ```
 
 This callback ensures the given instance is the leader of the quorum before processing the event:
