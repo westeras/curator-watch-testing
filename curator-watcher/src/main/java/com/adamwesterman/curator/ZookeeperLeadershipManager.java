@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -48,17 +50,18 @@ public class ZookeeperLeadershipManager extends LeaderSelectorListenerAdapter im
 
     @Override
     public void close() throws IOException {
+        this.leaderSelector.interruptLeadership();
         this.leaderSelector.close();
         this.cache.close();
         this.client.close();
     }
 
     @Override
-    public void takeLeadership(CuratorFramework curatorFramework) {
+    public void takeLeadership(CuratorFramework curatorFramework) throws IOException {
         log.info("[{}] taking leadership of zookeeper quorum...", hostname);
         try {
             Thread.sleep(60000);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             log.error("Leadership thread interrupted while sleeping!", e);
         }
         log.info("[{}] relinquishing leadership...", hostname);

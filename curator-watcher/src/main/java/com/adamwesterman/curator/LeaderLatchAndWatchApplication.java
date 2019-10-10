@@ -1,5 +1,7 @@
 package com.adamwesterman.curator;
 
+import java.io.IOException;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,8 +21,17 @@ public class LeaderLatchAndWatchApplication {
         try (ZookeeperLeadershipManager zookeeperLeadershipManager = new ZookeeperLeadershipManager(zookeeperConnect, zkLockNode, zkWatchNode)) {
             zookeeperLeadershipManager.start();
 
-            for (Thread thread : Thread.getAllStackTraces().keySet()) {
-                thread.join();
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                log.info("received a shutdown hook, stopping leadership manager");
+                try {
+                    zookeeperLeadershipManager.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }));
+
+            while (true) {
+                Thread.sleep(1000);
             }
         }
     }
