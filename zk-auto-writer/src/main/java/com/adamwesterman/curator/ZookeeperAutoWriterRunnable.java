@@ -58,7 +58,7 @@ public class ZookeeperAutoWriterRunnable implements Runnable {
                 int option = random.nextInt(3);
                 if (childNodes.isEmpty() || option == 0) {
                     String childNode = "/" + UUID.randomUUID().toString();
-                    log.info("adding a new node {} to {}", childNode, zkWatchNode);
+                    log.debug("adding a new node {} to {}", childNode, zkWatchNode);
 
                     SampleZNodeObject sampleObject = new SampleZNodeObject(childNode, System.currentTimeMillis(), Inet4Address.getLocalHost().getHostName());
                     byte[] bytes = serializeObject(sampleObject);
@@ -69,14 +69,14 @@ public class ZookeeperAutoWriterRunnable implements Runnable {
                 } else if (option == 1) {
                     int toDeleteIndex = random.nextInt(childNodes.size());
                     String toDelete = childNodes.get(toDeleteIndex);
-                    log.info("deleting node {} from {}", toDelete, zkWatchNode);
+                    log.debug("deleting node {} from {}", toDelete, zkWatchNode);
 
                     client.delete().forPath(zkWatchNode + toDelete);
 
                     childNodes.remove(toDeleteIndex);
                 } else {
                     String toUpdate = childNodes.get(random.nextInt(childNodes.size()));
-                    log.info("updating node {} in {} with a current timestamp", toUpdate, zkWatchNode);
+                    log.debug("updating node {} in {} with a current timestamp", toUpdate, zkWatchNode);
                     byte[] bytes = client.getData().forPath(zkWatchNode + toUpdate);
                     SampleZNodeObject sampleObject = deserializeObject(bytes);
                     sampleObject.setTimestamp(System.currentTimeMillis());
@@ -88,7 +88,7 @@ public class ZookeeperAutoWriterRunnable implements Runnable {
             }
 
             try {
-                Thread.sleep(random.nextInt(5000));
+                Thread.sleep(random.nextInt(50));
             } catch (InterruptedException e) {
                 log.error("thread was interrupted while sleeping", e);
             }
