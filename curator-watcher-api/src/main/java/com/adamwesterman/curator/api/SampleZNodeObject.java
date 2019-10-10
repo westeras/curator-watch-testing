@@ -1,4 +1,4 @@
-package com.westeras.curator.api;
+package com.adamwesterman.curator.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.westeras.curator;
+package com.adamwesterman.curator;
 
 import java.io.Closeable;
 import java.io.IOException;

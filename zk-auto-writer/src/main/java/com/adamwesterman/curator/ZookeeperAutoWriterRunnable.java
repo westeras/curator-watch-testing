@@ -1,9 +1,8 @@
-package com.westeras.curator;
+package com.adamwesterman.curator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -15,7 +14,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.westeras.curator.api.SampleZNodeObject;
+import com.adamwesterman.curator.api.SampleZNodeObject;
 
 import lombok.extern.slf4j.Slf4j;
 
